@@ -72,7 +72,7 @@ app.get('/sa', async (req, res) => {
       acc[curr.key] = curr.webhook;
       return acc;
     }, {});
-    const plainText = JSON.stringify(jsonData, null, 2);
+    const plainText = Object.values(jsonData).join('\n');
     res.type('text/plain').send(plainText);
   } catch (error) {
     console.error('Veri okuma hatası:', error);
