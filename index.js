@@ -82,10 +82,16 @@ app.get('/sa', async (req, res) => {
 
 
 app.get('/keysorgu', async (req, res) => {
-  const { key } = req.query;
+  const { key, api_auth } = req.query;
 
   if (!key) {
     res.status(400).send('Anahtar belirtilmedi.');
+    return;
+  }
+
+  // Check if api_auth is provided and valid
+  if (api_auth !== '1295') {
+    res.status(401).send('Yetkisiz erişim.');
     return;
   }
 
