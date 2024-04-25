@@ -1,19 +1,18 @@
 {
-  "name": "express-lowdb-app",
+  "name": "express-sqlite-app",
   "version": "1.0.0",
-  "description": "Express uygulaması lowdb kullanarak veri saklama",
+  "description": "Express uygulaması SQLite kullanarak veri saklama",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "keywords": [
     "express",
-    "lowdb"
+    "sqlite"
   ],
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "lowdb": "^1.0.0",
-    "lowdb/adapters/FileSync": "^1.0.0"
+    "sqlite3": "^5.0.2"
   }
 }
