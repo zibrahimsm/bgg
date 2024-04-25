@@ -79,3 +79,26 @@ app.get('/sa', async (req, res) => {
     res.status(500).send('Sunucu hatası');
   }
 });
+
+
+app.get('/keysorgu', async (req, res) => {
+  const { key } = req.query;
+
+  if (!key) {
+    res.status(400).send('Anahtar belirtilmedi.');
+    return;
+  }
+
+  try {
+    const webhookData = await WebhookModel.findOne({ key });
+    if (webhookData) {
+      res.status(200).send(webhookData.webhook);
+    } else {
+      res.status(404).send('Anahtar bulunamadı.');
+    }
+  } catch (error) {
+    console.error('Anahtar bulma hatası:', error);
+    res.status(500).send('Sunucu hatası');
+  }
+});
+
