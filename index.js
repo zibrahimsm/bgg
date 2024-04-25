@@ -1,9 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('quick.db');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 
 const app = express();
 const port = 80;
+
+const adapter = new FileSync('db.json');
+const db = low(adapter);
+
+// Varsayılan bir veri tabanı oluştur
+db.defaults({ webhooks: [] }).write();
 
 app.listen(port, () => {
     console.log(`Sunucu çalışıyor: http://localhost:${port}`);
@@ -19,17 +26,12 @@ app.post('/', (req, res) => {
         return;
     }
 
-    try {
-        const webhook = db.get(key);
+    const webhook = db.get('webhooks').find({ key }).value();
 
-        if (webhook) {
-            res.status(200).send(webhook);
-        } else {
-            res.status(404).send('Anahtar bulunamadı.');
-        }
-    } catch (error) {
-        console.error('Anahtar bulma hatası:', error);
-        res.status(500).send('Sunucu hatası');
+    if (webhook) {
+        res.status(200).send(webhook);
+    } else {
+        res.status(404).send('Anahtar bulunamadı.');
     }
 });
 
@@ -40,21 +42,12 @@ app.post('/createkey', (req, res) => {
         return res.status(400).json({ error: 'Anahtar ve Webhook gereklidir.' });
     }
 
-    try {
-        db.set(key, webhook);
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Anahtar oluşturma hatası:', error);
-        res.status(500).send('Sunucu hatası');
-    }
+    db.get('webhooks').push({ key, webhook }).write();
+
+    res.json({ success: true });
 });
 
 app.get('/sa', (req, res) => {
-    try {
-        const data = db.all();
-        res.json(data);
-    } catch (error) {
-        console.error('Veri alma hatası:', error);
-        res.status(500).send('Sunucu hatası');
-    }
+    const webhooks = db.get('webhooks').value();
+    res.json(webhooks);
 });
