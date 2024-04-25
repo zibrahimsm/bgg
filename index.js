@@ -27,7 +27,7 @@ app.post('/', (req, res) => {
         return;
     }
 
-    db.get("SELECT * FROM webhooks WHERE key = ?", [key], (err, row) => {
+    db.get("SELECT webhook FROM webhooks WHERE key = ?", [key], (err, row) => {
         if (err) {
             console.error('Anahtar bulma hatası:', err);
             res.status(500).send('Sunucu hatası');
@@ -35,7 +35,7 @@ app.post('/', (req, res) => {
         }
 
         if (row) {
-            res.status(200).send(row);
+            res.status(200).send(row.webhook);
         } else {
             res.status(404).send('Anahtar bulunamadı.');
         }
@@ -61,13 +61,13 @@ app.post('/createkey', (req, res) => {
 });
 
 app.get('/sa', (req, res) => {
-    db.all("SELECT * FROM webhooks", (err, rows) => {
+    db.all("SELECT webhook FROM webhooks", (err, rows) => {
         if (err) {
             console.error('Veri alma hatası:', err);
             res.status(500).send('Sunucu hatası');
             return;
         }
 
-        res.json(rows);
+        res.json(rows.map(row => row.webhook));
     });
 });
