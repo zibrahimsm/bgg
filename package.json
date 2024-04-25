@@ -1,18 +1,17 @@
 {
-  "name": "express-sqlite-app",
+  "name": "webhook-app",
   "version": "1.0.0",
-  "description": "Express uygulaması SQLite kullanarak veri saklama",
+  "description": "Webhook uygulaması",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [
-    "express",
-    "sqlite"
-  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.19.1",
     "express": "^4.17.1",
-    "sqlite3": "^5.0.2"
+    "mongoose": "^6.0.15"
   }
 }
