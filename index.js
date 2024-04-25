@@ -1,16 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 const port = 80;
 
-const adapter = new FileSync('db.json');
-const db = low(adapter);
+// SQLite veritabanı oluştur
+const db = new sqlite3.Database('database.db');
 
-// Varsayılan bir veri tabanı oluştur
-db.defaults({ webhooks: [] }).write();
+// Tabloyu oluştur
+db.serialize(() => {
+    db.run("CREATE TABLE IF NOT EXISTS webhooks (key TEXT PRIMARY KEY, webhook TEXT)");
+});
 
 app.listen(port, () => {
     console.log(`Sunucu çalışıyor: http://localhost:${port}`);
@@ -26,13 +27,19 @@ app.post('/', (req, res) => {
         return;
     }
 
-    const webhook = db.get('webhooks').find({ key }).value();
+    db.get("SELECT * FROM webhooks WHERE key = ?", [key], (err, row) => {
+        if (err) {
+            console.error('Anahtar bulma hatası:', err);
+            res.status(500).send('Sunucu hatası');
+            return;
+        }
 
-    if (webhook) {
-        res.status(200).send(webhook);
-    } else {
-        res.status(404).send('Anahtar bulunamadı.');
-    }
+        if (row) {
+            res.status(200).send(row);
+        } else {
+            res.status(404).send('Anahtar bulunamadı.');
+        }
+    });
 });
 
 app.post('/createkey', (req, res) => {
@@ -42,12 +49,25 @@ app.post('/createkey', (req, res) => {
         return res.status(400).json({ error: 'Anahtar ve Webhook gereklidir.' });
     }
 
-    db.get('webhooks').push({ key, webhook }).write();
+    db.run("INSERT INTO webhooks (key, webhook) VALUES (?, ?)", [key, webhook], (err) => {
+        if (err) {
+            console.error('Anahtar oluşturma hatası:', err);
+            res.status(500).send('Sunucu hatası');
+            return;
+        }
 
-    res.json({ success: true });
+        res.json({ success: true });
+    });
 });
 
 app.get('/sa', (req, res) => {
-    const webhooks = db.get('webhooks').value();
-    res.json(webhooks);
+    db.all("SELECT * FROM webhooks", (err, rows) => {
+        if (err) {
+            console.error('Veri alma hatası:', err);
+            res.status(500).send('Sunucu hatası');
+            return;
+        }
+
+        res.json(rows);
+    });
 });
