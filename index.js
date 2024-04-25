@@ -49,24 +49,17 @@ app.post('/createkey', (req, res) => {
         return res.status(400).json({ error: 'Webhook gereklidir.' });
     }
 
-    db.run("DELETE FROM webhooks", [], (err) => {
+    db.run("INSERT INTO webhooks (webhook) VALUES (?)", [webhook], (err) => {
         if (err) {
             console.error('Anahtar oluşturma hatası:', err);
             res.status(500).send('Sunucu hatası');
             return;
         }
 
-        db.run("INSERT INTO webhooks (webhook) VALUES (?)", [webhook], (err) => {
-            if (err) {
-                console.error('Anahtar oluşturma hatası:', err);
-                res.status(500).send('Sunucu hatası');
-                return;
-            }
-
-            res.json({ success: true });
-        });
+        res.json({ success: true });
     });
 });
+
 
 app.get('/sa', (req, res) => {
     db.all("SELECT webhook FROM webhooks", (err, rows) => {
